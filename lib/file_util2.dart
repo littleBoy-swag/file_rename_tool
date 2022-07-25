@@ -6,14 +6,20 @@ import 'package:path/path.dart';
 
 class FileUtil2 {
   /// 文件重命名
-  static Future<bool> renameFiles(String folderPath) async {
+  static Future<bool> renameFiles(String folderPath, int delSize) async {
     // 1. 判断当前目录是否存在
     if (!_isFolderExist(folderPath)) {
       showToast("当前目录不存在，请重新选择");
       return false;
     }
-    _innerRecursiveRenameOrDelete(folderPath);
-    return true;
+    var targetSize = delSize;
+    try {
+      _innerRecursiveRenameOrDelete(folderPath, targetSize);
+      return true;
+    } on Exception catch (e) {
+      print(e.toString());
+      return false;
+    }
   }
 
   /// 文件夹是否存在
@@ -21,17 +27,23 @@ class FileUtil2 {
     return Directory(path).existsSync();
   }
 
-  static void _innerRecursiveRenameOrDelete(String src) {
+  static void _innerRecursiveRenameOrDelete(String src, int delSize) {
     List<FileSystemEntity> fileList = Directory(src).listSync();
     for (FileSystemEntity fse in fileList) {
       FileSystemEntityType type = FileSystemEntity.typeSync(fse.path);
       if (type == FileSystemEntityType.directory) {
         /// 递归处理
-        _innerRecursiveRenameOrDelete(fse.path);
+        _innerRecursiveRenameOrDelete(fse.path, delSize);
       } else if (type == FileSystemEntityType.file) {
         /// 是文件
         File file = File(fse.path);
         String fileName = basename(file.path);
+        /// 如果文件大小小于delSize，则直接删除
+        if(file.lengthSync() < delSize * 1024) {
+          print(file.lengthSync());
+          file.deleteSync();
+          continue;
+        }
         if (_needDelete(fileName)) {
           file.deleteSync();
           continue;

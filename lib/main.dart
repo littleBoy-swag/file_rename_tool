@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
 
   void _renameFile() async {
     EasyLoading.show(status: "正在处理");
-    bool result = await FileUtil2.renameFiles(_folderPath);
+    bool result = await FileUtil2.renameFiles(_folderPath, 50);
     EasyLoading.dismiss();
     if (result) {
       showDialog<void>(
