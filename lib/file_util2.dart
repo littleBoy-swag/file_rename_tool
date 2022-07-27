@@ -39,11 +39,11 @@ class FileUtil2 {
         File file = File(fse.path);
         String fileName = basename(file.path);
         /// 如果文件大小小于delSize，则直接删除
-        if(file.lengthSync() < delSize * 1024) {
+        /*if(file.lengthSync() < delSize * 1024) {
           print(file.lengthSync());
           file.deleteSync();
           continue;
-        }
+        }*/
         if (_needDelete(fileName)) {
           file.deleteSync();
           continue;
@@ -89,6 +89,13 @@ class FileUtil2 {
     }
     List<String> arr = fileNameNoSuffix.split("_");
     bool match = false;
+    if (arr.isNotEmpty) {
+      /// 简单手机号匹配
+      match = RegExp(r"1[0-9]\d{9}$").hasMatch(arr[0]);
+    }
+    if (match) {
+      return arr[0];
+    }
     if (arr.length > 1) {
       /// 简单手机号匹配
       match = RegExp(r"1[0-9]\d{9}$").hasMatch(arr[1]);
